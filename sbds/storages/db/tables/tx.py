@@ -30,6 +30,10 @@ from ..utils import UniqueMixin
 
 logger = sbds.sbds_logging.getLogger(__name__)
 
+from sqlalchemy.types import UnicodeText
+from sqlalchemy.dialects import mysql
+UT = UnicodeText()
+UT= UT.with_variant(mysql.MEDIUMTEXT, 'mysql')
 
 class UndefinedTransactionType(Exception):
     """Exception raised when undefined transction is encountered"""
@@ -302,7 +306,7 @@ class TxAccountCreate(Base, TxBase):
 
     __tablename__ = 'sbds_tx_account_creates'
 
-    fee = Column(Numeric(15, 6), nullable=False)
+    fee = Column(Numeric(20, 6), nullable=False)
     creator = Column(Unicode(50), nullable=False, index=True)
     new_account_name = Column(Unicode(50))
     owner_key = Column(Unicode(80), nullable=False)
@@ -336,8 +340,8 @@ class TxAccountCreateWithDelegation(Base, TxBase):
 
     __tablename__ = 'sbds_tx_account_create_with_delegations'
 
-    fee = Column(Numeric(15, 6), nullable=False)
-    delegation = Column(Numeric(15, 6), nullable=False)
+    fee = Column(Numeric(20, 6), nullable=False)
+    delegation = Column(Numeric(20, 6), nullable=False)
     creator = Column(Unicode(50), nullable=False, index=True)
     new_account_name = Column(Unicode(50), index=True)
     owner_key = Column(Unicode(80), nullable=False)
@@ -515,7 +519,7 @@ class TxAccountUpdate(Base, TxBase):
     key_auth1 = Column(Unicode(80))
     key_auth2 = Column(Unicode(80))
     memo_key = Column(Unicode(250))
-    json_metadata = Column(UnicodeText)
+    json_metadata = Column(UT)
 
     _fields = dict(account_update=dict(
         account=lambda x: x.get('account'),
@@ -694,9 +698,9 @@ class TxClaimRewardBalance(Base, TxBase):
     __tablename__ = 'sbds_tx_claim_reward_balances'
 
     account = Column(Unicode(50), index=True, nullable=False)
-    reward_steem = Column(Numeric(15, 6))
-    reward_sbd = Column(Numeric(15, 6))
-    reward_vests = Column(Numeric(15, 6))
+    reward_steem = Column(Numeric(20, 6))
+    reward_sbd = Column(Numeric(20, 6))
+    reward_vests = Column(Numeric(20, 6))
 
     _fields = dict(claim_reward_balance=dict(
         account=lambda x: x.get('account'),
@@ -761,8 +765,8 @@ class TxComment(Base, TxBase):
     parent_author = Column(Unicode(50), index=True)
     parent_permlink = Column(Unicode(512))
     title = Column(Unicode(512))
-    body = Column(UnicodeText)
-    json_metadata = Column(UnicodeText)
+    body = Column(UT)
+    json_metadata = Column(UT)
 
     _fields = dict(comment=dict(
         author=lambda x: x.get('author'),
@@ -870,7 +874,7 @@ class TxCommentOption(Base, TxBase):
 
     author = Column(Unicode(50), nullable=False)
     permlink = Column(Unicode(512), nullable=False)
-    max_accepted_payout = Column(Numeric(15, 6), nullable=False)
+    max_accepted_payout = Column(Numeric(20, 6), nullable=False)
     percent_steem_dollars = Column(SmallInteger, default=0)
     allow_votes = Column(Boolean, nullable=False)
     allow_curation_rewards = Column(Boolean, nullable=False)
@@ -920,7 +924,7 @@ class TxConvert(Base, TxBase):
 
     owner = Column(Unicode(50), nullable=False)
     requestid = Column(BigInteger, nullable=False)
-    amount = Column(Numeric(15, 6), nullable=False)
+    amount = Column(Numeric(20, 6), nullable=False)
 
     _fields = dict(convert=dict(
         owner=lambda x: x.get('owner'),
@@ -1062,7 +1066,7 @@ class TxDelegateVestingShares(Base, TxBase):
 
     delegator = Column(Unicode(50), index=True)
     delegatee = Column(Unicode(50), index=True)
-    vesting_shares = Column(Numeric(15, 6))
+    vesting_shares = Column(Numeric(20, 6))
 
     _fields = dict(delegate_vesting_shares=dict(
         delegator=lambda x: x.get('delegator'),
@@ -1225,8 +1229,8 @@ class TxEscrowRelease(Base, TxBase):
     agent = Column(Unicode(50), index=True)
     to = Column(Unicode(50), index=True)
     escrow_id = Column(Integer)
-    steem_amount = Column(Numeric(15, 6))
-    sbd_amount = Column(Numeric(15, 6))
+    steem_amount = Column(Numeric(20, 6))
+    sbd_amount = Column(Numeric(20, 6))
     who = Column(Unicode(50), index=True)
     receiver = Column(Unicode(50), index=True)
 
@@ -1268,11 +1272,11 @@ class TxEscrowTransfer(Base, TxBase):
     agent = Column(Unicode(50), index=True)
     to = Column(Unicode(50), index=True)
     escrow_id = Column(Integer)
-    steem_amount = Column(Numeric(15, 6))
-    sbd_amount = Column(Numeric(15, 6))
+    steem_amount = Column(Numeric(20, 6))
+    sbd_amount = Column(Numeric(20, 6))
 
     json_metadata = Column(UnicodeText)
-    fee_amount = Column(Numeric(15, 6))
+    fee_amount = Column(Numeric(20, 6))
     fee_amount_symbol = Column(Unicode(5))
     escrow_expiration = Column(DateTime(timezone=False), index=True)
     ratification_deadline = Column(DateTime(timezone=False), index=True)
@@ -1338,8 +1342,8 @@ class TxFeedPublish(Base, TxBase):
     __tablename__ = 'sbds_tx_feed_publishes'
 
     publisher = Column(Unicode(50), nullable=False)
-    exchange_rate_base = Column(Numeric(15, 6), nullable=False)
-    exchange_rate_quote = Column(Numeric(15, 6), nullable=False)
+    exchange_rate_base = Column(Numeric(20, 6), nullable=False)
+    exchange_rate_quote = Column(Numeric(20, 6), nullable=False)
 
     _fields = dict(feed_publish=dict(
         publisher=lambda x: x.get('publisher'),
@@ -1411,9 +1415,9 @@ class TxLimitOrderCreate(Base, TxBase):
     owner = Column(Unicode(50), nullable=False)
     orderid = Column(BigInteger, nullable=False)
     cancel = Column(Boolean, default=False)
-    amount_to_sell = Column(Numeric(15, 6))
+    amount_to_sell = Column(Numeric(20, 6))
     # sell_symbol = Column(Unicode(5))
-    min_to_receive = Column(Numeric(15, 6))
+    min_to_receive = Column(Numeric(20, 6))
     # receive_symbol = Column(Unicode(5))
     fill_or_kill = Column(Boolean, default=False)
     expiration = Column(DateTime)
@@ -1651,7 +1655,7 @@ class TxTransfer(Base, TxBase):
 
     _from = Column('from', Unicode(50), index=True)
     to = Column(Unicode(50), index=True)
-    amount = Column(Numeric(15, 6))
+    amount = Column(Numeric(20, 6))
     amount_symbol = Column(Unicode(5))
     memo = Column(Unicode(2048))
 
@@ -1704,10 +1708,10 @@ class TxTransferFromSavings(Base, TxBase):
 
     _from = Column('from', Unicode(50), index=True)
     to = Column(Unicode(50), index=True)
-    amount = Column(Numeric(15, 6))
+    amount = Column(Numeric(20, 6))
     amount_symbol = Column(Unicode(5))
     memo = Column(Unicode(2048))
-    request_id = Column(Integer)
+    request_id = Column(BigInteger)
 
     _fields = dict(transfer_from_savings=dict(
         _from=lambda x: x.get('from'),
@@ -1759,7 +1763,7 @@ class TxTransferToSavings(Base, TxBase):
 
     _from = Column('from', Unicode(50), index=True)
     to = Column(Unicode(50), index=True)
-    amount = Column(Numeric(15, 6))
+    amount = Column(Numeric(20, 6))
     amount_symbol = Column(Unicode(5))
     memo = Column(Unicode(2048))
 
@@ -1810,7 +1814,7 @@ class TxTransferToVesting(Base, TxBase):
 
     _from = Column('from', Unicode(50), index=True)
     to = Column(Unicode(50), index=True)
-    amount = Column(Numeric(15, 6))
+    amount = Column(Numeric(20, 6))
     amount_symbol = Column(Unicode(5))
 
     _fields = dict(transfer_to_vesting=dict(
@@ -1855,7 +1859,7 @@ class TxCancelTransferFromSavings(Base, TxBase):
     __tablename__ = 'sbds_tx_cancel_transfer_from_savings'
 
     _from = Column('from', Unicode(50), index=True)
-    request_id = Column(Integer)
+    request_id = Column(BigInteger)
 
     _fields = dict(cancel_transfer_from_savings=dict(
         _from=lambda x: x.get('from'),
@@ -2070,10 +2074,10 @@ class TxWitnessUpdate(Base, TxBase):
     owner = Column(Unicode(50), nullable=False)
     url = Column(Unicode(250), nullable=False)
     block_signing_key = Column(Unicode(64), nullable=False)
-    props_account_creation_fee = Column(Numeric(15, 6), nullable=False)
+    props_account_creation_fee = Column(Numeric(20, 6), nullable=False)
     props_maximum_block_size = Column(Integer, nullable=False)
     props_sbd_interest_rate = Column(Integer, nullable=False)
-    fee = Column(Numeric(15, 6), nullable=False, default=0.0)
+    fee = Column(Numeric(20, 6), nullable=False, default=0.0)
 
     _fields = dict(witness_update=dict(
         owner=lambda x: x.get('owner'),
