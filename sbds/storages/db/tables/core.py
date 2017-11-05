@@ -22,6 +22,10 @@ from sbds.utils import block_num_from_previous
 
 logger = sbds.sbds_logging.getLogger(__name__)
 
+from sqlalchemy.types import UnicodeText
+from sqlalchemy.dialects import mysql
+UT = UnicodeText()
+UT= UT.with_variant(mysql.MEDIUMTEXT, 'mysql')
 
 # pylint: disable=line-too-long
 class Block(Base, UniqueMixin):
@@ -157,7 +161,7 @@ class Block(Base, UniqueMixin):
         'mysql_collate': 'utf8mb4_general_ci'
     }, )
 
-    raw = Column(UnicodeText)
+    raw = Column(UT)
     block_num = Column(
         Integer, primary_key=True, nullable=False, autoincrement=False)
     previous = Column(Unicode(50))
