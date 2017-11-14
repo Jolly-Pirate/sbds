@@ -964,7 +964,7 @@ class TxCustom(Base, TxBase):
 
     tid = Column(Unicode(50), nullable=False)
     required_auths = Column(Unicode(250))
-    data = Column(UnicodeText)
+    data = Column(UT)
 
     common = dict(
         tid=lambda x: x.get('id'),
